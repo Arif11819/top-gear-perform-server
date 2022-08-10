@@ -16,7 +16,15 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
         await client.connect();
-        console.log('Database connected');
+        const scheduleCollection = client.db("UserData").collection('scheduleData');
+
+        //post schedule data
+        app.post('/scheduleData', async (req, res) => {
+            const newScheduleData = req.body;
+            const result = await scheduleCollection.insertOne(newScheduleData);
+            res.send(result);
+        })
+
     }
     finally {
 
