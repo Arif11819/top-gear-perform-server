@@ -16,6 +16,90 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
         await client.connect();
+
+
+        const taskCollection = client.db('top_gear_perform').collection('tasks');
+        app.get('/task', async (req, res) => {
+            const query = {};
+            const cursor = taskCollection.find(query);
+            const tasks = await cursor.toArray();
+            res.send(tasks)
+        });
+        app.post('/task', async (req, res) => {
+            const task = req.body;
+            const result = await taskCollection.insertOne(task);
+            res.send(result);
+
+        });
+
+        app.get('/task/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const tasks = await taskCollection.findOne(query);
+            res.send(tasks);
+        });
+        const progressCollection = client.db('top_gear_perform').collection('progress-task');
+        app.get('/progress', async (req, res) => {
+            const query = {};
+            const cursor = progressCollection.find(query);
+            const progress = await cursor.toArray();
+            res.send(progress)
+        });
+        app.post('/progress', async (req, res) => {
+            const task = req.body;
+            const result = await progressCollection.insertOne(task);
+            res.send(result);
+
+        });
+
+        app.get('/progress/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const progress = await progressCollection.findOne(query);
+            res.send(progress);
+        });
+        const completeCollection = client.db('top_gear_perform').collection('completed-tasks');
+        app.get('/complete', async (req, res) => {
+            const query = {};
+            const cursor = completeCollection.find(query);
+            const complete = await cursor.toArray();
+            res.send(complete)
+        });
+        app.post('/complete', async (req, res) => {
+            const complete = req.body;
+            const result = await completeCollection.insertOne(complete);
+            res.send(result);
+
+        });
+
+        app.get('/complete/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const complete = await completeCollection.findOne(query);
+            res.send(complete);
+        });
+        const scheduleCollection = client.db('top_gear_perform').collection('scheduled-task');
+        app.get('/schedule', async (req, res) => {
+            const query = {};
+            const cursor = scheduleCollection.find(query);
+            const schedule = await cursor.toArray();
+            res.send(schedule)
+        });
+        app.post('/schedule', async (req, res) => {
+            const schedule = req.body;
+            const result = await scheduleCollection.insertOne(schedule);
+            res.send(result);
+
+        });
+
+        app.get('/schedule/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const schedule = await scheduleCollection.findOne(query);
+            res.send(schedule);
+        });
+
+
         console.log('Database connected');
     }
     finally {
