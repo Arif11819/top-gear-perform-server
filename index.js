@@ -18,6 +18,7 @@ async function run() {
     try {
         await client.connect();
         const reviewsCollection = client.db('top_gear_perform').collection('reviews');
+         const scheduleCollection = client.db("UserData").collection('scheduleData');
 
         app.get('/reviews', async (req, res) => {
             const query = {};
@@ -32,6 +33,14 @@ async function run() {
                 res.send(reviews);
             });
         });
+       
+
+        //post schedule data
+        app.post('/scheduleData', async (req, res) => {
+            const newScheduleData = req.body;
+            const result = await scheduleCollection.insertOne(newScheduleData);
+            res.send(result);
+        })
     }
     finally {
 
