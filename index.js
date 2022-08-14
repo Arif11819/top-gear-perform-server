@@ -21,6 +21,8 @@ async function run() {
 
         const userCollection = client.db('top_gear_perform').collection('users')
         const taskCollection = client.db('top_gear_perform').collection('tasks');
+        const scheduleCollection = client.db('top_gear_perform').collection('scheduled-task');
+
         app.get('/user/:email', async (req, res) => {
             const email = req.params.email
             const query = { userEmail: email }
@@ -94,7 +96,7 @@ async function run() {
             const complete = await completeCollection.findOne(query);
             res.send(complete);
         });
-        const scheduleCollection = client.db('top_gear_perform').collection('scheduled-task');
+
         app.get('/schedule', async (req, res) => {
             const query = {};
             const cursor = scheduleCollection.find(query);
@@ -135,13 +137,14 @@ async function run() {
             });
         });
 
-
+        //============== Mazharul ===================
         //post schedule data
         app.post('/scheduleData', async (req, res) => {
             const newScheduleData = req.body;
             const result = await scheduleCollection.insertOne(newScheduleData);
             res.send(result);
-        })
+        });
+
 
     }
     finally {
