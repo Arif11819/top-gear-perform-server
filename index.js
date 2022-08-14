@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { query } = require('express');
 require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 5000;
@@ -16,7 +17,25 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
         await client.connect();
-        console.log('Database connected');
+        
+
+        const userCollection = client.db('top_gear_perform').collection('users')
+
+        app.get('/user/:email',async(req,res)=>{
+            const email = req.params.email
+            const query = {userEmail:email}
+            const user = await userCollection.find(query).toArray()
+            res.send(user)
+        })
+
+        app.post('/users',async(req,res)=>{
+            const userData = req.body
+            console.log(userData)
+            const result = await userCollection.insertOne(userData)
+            res.send(result)
+
+        })
+
     }
     finally {
 
