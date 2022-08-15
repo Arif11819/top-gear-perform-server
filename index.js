@@ -23,6 +23,7 @@ async function run() {
         const taskCollection = client.db('top_gear_perform').collection('tasks');
         const scheduleCollection = client.db('top_gear_perform').collection('scheduled-task');
         const scheduleUserDataCollection = client.db('top_gear_perform').collection('scheduleUserData');
+        const timeSlotsCollection = client.db('top_gear_perform').collection('timeSlots');
 
         app.get('/user/:email', async (req, res) => {
             const email = req.params.email
@@ -142,7 +143,7 @@ async function run() {
         //post schedule data
         app.post('/scheduleData', async (req, res) => {
             const newScheduleData = req.body;
-            const query = { time: newScheduleData.time, email: newScheduleData.email }
+            const query = { time: newScheduleData.time, email: newScheduleData.email, date: newScheduleData.date }
             const exist = await scheduleUserDataCollection.findOne(query);
             if (exist) {
                 return res.send({ success: false, newScheduleData: exist })
@@ -150,6 +151,10 @@ async function run() {
             const result = await scheduleUserDataCollection.insertOne(newScheduleData);
             return res.send({ success: true, result });
         });
+        app.get('/timeSlots', async (req, res) => {
+            const timeSlots = await timeSlotsCollection.find().toArray();
+            res.send(timeSlots);
+        })
 
 
     }
