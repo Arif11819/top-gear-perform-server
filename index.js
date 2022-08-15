@@ -22,6 +22,7 @@ async function run() {
         const userCollection = client.db('top_gear_perform').collection('users')
         const taskCollection = client.db('top_gear_perform').collection('tasks');
         const scheduleCollection = client.db('top_gear_perform').collection('scheduled-task');
+        const scheduleUserDataCollection = client.db('top_gear_perform').collection('scheduleUserData');
 
         app.get('/user/:email', async (req, res) => {
             const email = req.params.email
@@ -141,8 +142,13 @@ async function run() {
         //post schedule data
         app.post('/scheduleData', async (req, res) => {
             const newScheduleData = req.body;
-            const result = await scheduleCollection.insertOne(newScheduleData);
-            res.send(result);
+            const query = { time: newScheduleData.time, email: newScheduleData.email }
+            const exist = await scheduleUserDataCollection.findOne(query);
+            if (exist) {
+                return res.send({ success: false, newScheduleData: exist })
+            }
+            const result = await scheduleUserDataCollection.insertOne(newScheduleData);
+            return res.send({ success: true, result });
         });
 
 
