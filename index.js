@@ -3,7 +3,7 @@ const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 4000;
 
 
 // middleware
@@ -21,6 +21,7 @@ async function run() {
 
         const userCollection = client.db('top_gear_perform').collection('users')
         const taskCollection = client.db('top_gear_perform').collection('tasks');
+     
         app.get('/user/:email', async (req, res) => {
             const email = req.params.email
             const query = { userEmail: email }
@@ -30,7 +31,6 @@ async function run() {
 
         app.post('/users', async (req, res) => {
             const userData = req.body
-
             const result = await userCollection.insertOne(userData)
             res.send(result)
 
@@ -142,6 +142,14 @@ async function run() {
             const result = await scheduleCollection.insertOne(newScheduleData);
             res.send(result);
         })
+
+        // get all news
+        const newsCollection = client.db('top_gear_perform').collection('news');
+        app.get('/news', async (req, res) => {
+            const query = {};
+            const news = await newsCollection.find(query).toArray();
+            res.send(news);
+        });
 
     }
     finally {
