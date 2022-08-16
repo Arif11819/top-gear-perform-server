@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
+var nodemailer = require('nodemailer');
+var sgTransport = require('nodemailer-sendgrid-transport');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -13,6 +15,55 @@ app.use(express.json());
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.gflsp.mongodb.net/?retryWrites=true&w=majority`;
 
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+//================ Email sender schedule =========
+const mailSenderOption = {
+    auth: {
+        api_key: process.env.EMAIL_SENDER_KEY
+    }
+}
+
+const emailClient = nodemailer.createTransport(sgTransport(mailSenderOption));
+
+function scheduleSendEmail(newScheduleData) {
+    const { email, userName, date, time, company } = newScheduleData;
+    var emailSend = {
+        from: process.env.EMAIL_SEND,
+        to: email,
+        subject: `Your schedule for ${company} is on ${date} at ${time} is confirmed`,
+        text: `Your schedule for ${company} is on ${date} at ${time} is confirmed`,
+        html: `
+            <div>
+                <p>Hello ${userName},</p>
+                <p>Thank you for requesting a product demonstration of TopGearPerform</p>
+                <p>Badhon Chaki, one of our product experts, will be reaching out shortly to show you how TopGearPerform can streamline and formalize your performance management process.</p>
+                <h3>Your schedule for ${company} is confirmed</h3>
+                <p>Looking forword to meeting you on ${date} at ${time}</p>
+                <p>Your meeting link ${process.env.MEET_LINK}</p>
+                <p>You can choose the day and time that works best for you.</p>
+                <p>Talk with you soon,</p>
+
+                <h4>Team TopGearPerform</h4>
+                <p>+8801818392344</p>
+
+                <a href="https://topgearperform.netlify.app/">TopGearPerform</a>
+
+                <span>---------</span>
+                <p>TopGearPerform,Inc.</p>
+                <p>Dhaka,Bangladesh</p>
+            </div>
+        `
+    };
+
+    emailClient.sendMail(emailSend, function (err, info) {
+        if (err) {
+            console.log(err);
+        }
+        else {
+            console.log('Message sent: ', info.response);
+        }
+    });
+}
+
 
 async function run() {
     try {
@@ -149,11 +200,23 @@ async function run() {
                 return res.send({ success: false, newScheduleData: exist })
             }
             const result = await scheduleUserDataCollection.insertOne(newScheduleData);
+            scheduleSendEmail(newScheduleData)
             return res.send({ success: true, result });
         });
         app.get('/timeSlots', async (req, res) => {
             const timeSlots = await timeSlotsCollection.find().toArray();
             res.send(timeSlots);
+        });
+        app.get('/timeAvailable', async (req, res) => {
+            const date = req.query.date || 'Aug 16, 2022'
+            const timeSlots = await timeSlotsCollection.find().toArray();
+            const query = { date: date }
+            const bookings = await scheduleUserDataCollection.find(query).toArray();
+            timeSlots.forEach(time => {
+                const timeBookings = bookings.filter(b => b.time === timeSlots.time);
+                time.booked = timeBookings.map(b => b.time)
+            })
+            res.send(timeSlots)
         })
 
 
