@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId, Timestamp } = require('mongodb');
 require('dotenv').config();
 var nodemailer = require('nodemailer');
 var sgTransport = require('nodemailer-sendgrid-transport');
@@ -207,17 +207,22 @@ async function run() {
             const timeSlots = await timeSlotsCollection.find().toArray();
             res.send(timeSlots);
         });
-        app.get('/timeAvailable', async (req, res) => {
-            const date = req.query.date || 'Aug 16, 2022'
-            const timeSlots = await timeSlotsCollection.find().toArray();
-            const query = { date: date }
-            const bookings = await scheduleUserDataCollection.find(query).toArray();
-            timeSlots.forEach(time => {
-                const timeBookings = bookings.filter(b => b.time === timeSlots.time);
-                time.booked = timeBookings.map(b => b.time)
-            })
-            res.send(timeSlots)
-        })
+
+        // app.get('/timeAvailable', async (req, res) => {
+        //     const date = req.query.date || 'Aug 16, 2022'
+        //     const timeSlots = await timeSlotsCollection.find().toArray();
+        //     const query = { date: date }
+        //     const bookings = await scheduleUserDataCollection.find(query).toArray();
+        //     timeSlots.forEach(timeSlot => {
+        //         const timeBooks = bookings.filter(b => b.time === timeSlot.time);
+        //         const booked = timeBooks.map(t => t.time);
+        //         const availableTime = timeSlots.filter(t => !booked.time(t))
+        //         // timeSlot.time = availableTime;
+        //         // timeSlot.booked = timeBooks.map(t => t.time)
+        //         console.log(availableTime);
+        //     })
+        //     res.send(timeSlots)
+        // })
 
 
     }
