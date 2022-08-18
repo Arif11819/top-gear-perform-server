@@ -231,7 +231,7 @@ async function run() {
             scheduleSendEmail(newScheduleData)
             return res.send({ success: true, result });
         });
-        app.get('/timeSlots', verifyJWT, async (req, res) => {
+        app.get('/timeSlots', async (req, res) => {
             const timeSlots = await timeSlotsCollection.find().toArray();
             res.send(timeSlots);
         });
