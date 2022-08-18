@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId, Timestamp } = require('mongodb');
 require('dotenv').config();
 var nodemailer = require('nodemailer');
@@ -15,6 +16,24 @@ app.use(express.json());
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.gflsp.mongodb.net/?retryWrites=true&w=majority`;
 
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+
+// ============== verifyJWT ======================
+function verifyJWT(req, res, next) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        return res.status(401).send({ message: 'unauthorize access' })
+    }
+    const token = authHeader.split(' ')[1];
+    jwt.verify(token, process.env.JWT_SECRET, function (err, decoded) {
+        if (err) {
+            return res.status(403).send({ message: 'Forbidden access' })
+        }
+        req.decoded = decoded;
+        next()
+    });
+}
+
+
 //================ Email sender schedule =========
 const mailSenderOption = {
     auth: {
@@ -75,6 +94,15 @@ async function run() {
         const scheduleCollection = client.db('top_gear_perform').collection('scheduled-task');
         const scheduleUserDataCollection = client.db('top_gear_perform').collection('scheduleUserData');
         const timeSlotsCollection = client.db('top_gear_perform').collection('timeSlots');
+
+        //AUTH 
+        app.post('/login', async (req, res) => {
+            const user = req.body;
+            const accessToken = jwt.sign(user, process.env.JWT_SECRET, {
+                expiresIn: '1d'
+            });
+            res.send({ accessToken });
+        });
 
         app.get('/user/:email', async (req, res) => {
             const email = req.params.email
@@ -203,7 +231,7 @@ async function run() {
             scheduleSendEmail(newScheduleData)
             return res.send({ success: true, result });
         });
-        app.get('/timeSlots', async (req, res) => {
+        app.get('/timeSlots', verifyJWT, async (req, res) => {
             const timeSlots = await timeSlotsCollection.find().toArray();
             res.send(timeSlots);
         });
