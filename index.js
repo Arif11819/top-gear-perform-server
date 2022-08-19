@@ -261,20 +261,6 @@ async function run() {
             });
 
         });
-
-        const employeeCollection = client.db('Company-employee').collection('employees');
-        app.get('/employee', async (req, res) => {
-            const query = {};
-            const cursor = employeeCollection.find(query);
-            const employees = await cursor.toArray();
-            res.send(employees);
-        });
-        app.get('/employee/:id', async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: ObjectId(id) };
-            const employees = await employeeCollection.findOne(query);
-            res.send(employees);
-        });
         app.post('/employee', async (req, res) => {
             const employees = req.body;
             const result = await employeeCollection.insertOne(employees);
