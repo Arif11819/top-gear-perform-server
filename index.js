@@ -94,6 +94,7 @@ async function run() {
         const scheduleCollection = client.db('top_gear_perform').collection('scheduled-task');
         const scheduleUserDataCollection = client.db('top_gear_perform').collection('scheduleUserData');
         const timeSlotsCollection = client.db('top_gear_perform').collection('timeSlots');
+        const notesCollection = client.db('top_gear_perform').collection('notes');
 
         //AUTH 
         app.post('/login', async (req, res) => {
@@ -234,6 +235,17 @@ async function run() {
         app.get('/timeSlots', async (req, res) => {
             const timeSlots = await timeSlotsCollection.find().toArray();
             res.send(timeSlots);
+        });
+
+        // ============= Notes api =================
+        app.post('/notes', async (req, res) => {
+            const newNote = req.body;
+            const result = await notesCollection.insertOne(newNote);
+            res.send(result);
+        });
+        app.get('/notes', async (req, res) => {
+            const notes = await notesCollection.find().toArray();
+            res.send(notes);
         });
 
         // app.get('/timeAvailable', async (req, res) => {
