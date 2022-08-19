@@ -21,7 +21,7 @@ async function run() {
 
         const userCollection = client.db('top_gear_perform').collection('users')
         const taskCollection = client.db('top_gear_perform').collection('tasks');
-     
+
         app.get('/user/:email', async (req, res) => {
             const email = req.params.email
             const query = { userEmail: email }
