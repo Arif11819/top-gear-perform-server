@@ -6,7 +6,7 @@ require('dotenv').config();
 var nodemailer = require('nodemailer');
 var sgTransport = require('nodemailer-sendgrid-transport');
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 4000;
 
 
 // middleware
@@ -114,7 +114,6 @@ async function run() {
 
         app.post('/users', async (req, res) => {
             const userData = req.body
-            console.log(userData)
             const result = await userCollection.insertOne(userData)
             res.send(result)
 
@@ -264,6 +263,14 @@ async function run() {
         //     res.send(timeSlots)
         // })
 
+
+        // get all news
+        const newsCollection = client.db('top_gear_perform').collection('news');
+        app.get('/news', async (req, res) => {
+            const query = {};
+            const news = await newsCollection.find(query).toArray();
+            res.send(news);
+        });
 
     }
     finally {
