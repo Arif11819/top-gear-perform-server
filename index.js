@@ -6,7 +6,7 @@ require('dotenv').config();
 var nodemailer = require('nodemailer');
 var sgTransport = require('nodemailer-sendgrid-transport');
 const app = express();
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 5000;
 
 
 // middleware
@@ -98,6 +98,7 @@ async function run() {
         const timeSlotsCollection = client.db('top_gear_perform').collection('timeSlots');
         const notesCollection = client.db('top_gear_perform').collection('notes');
         const vacationCollection = client.db('top_gear_perform').collection('vacation');
+        const vacationStoreCollection = client.db('top_gear_perform').collection('vacationStore');
 
         //AUTH 
         app.post('/login', async (req, res) => {
@@ -303,7 +304,34 @@ async function run() {
         app.get('/vacation', async (req, res) => {
             const dayOff = await vacationCollection.find().toArray();
             res.send(dayOff)
+        });
+
+        app.get('/vacation/:name', async (req, res) => {
+            const name = req.params.name;
+            const query = { name: name };
+            const vacation = await vacationCollection.findOne(query);
+            res.send(vacation);
         })
+
+        app.put('/vacation/:name', async (req, res) => {
+            const name = req.params.name;
+            const update = req.body;
+            const fillter = { name: name };
+            const options = { upsert: true };
+            const updatedoc = {
+                $set: {
+                    day: update.count
+                }
+            };
+            const result = await vacationCollection.updateOne(fillter, updatedoc, options);
+            res.send(result)
+        });
+        app.post('/vacationstore', async (req, res) => {
+            const newVacation = req.body;
+            const result = await vacationStoreCollection.insertOne(newVacation);
+            res.send(result)
+        })
+
 
         // app.get('/timeAvailable', async (req, res) => {
         //     const date = req.query.date || 'Aug 16, 2022'
