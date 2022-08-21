@@ -95,6 +95,7 @@ async function run() {
         const scheduleUserDataCollection = client.db('top_gear_perform').collection('scheduleUserData');
         const timeSlotsCollection = client.db('top_gear_perform').collection('timeSlots');
         const notesCollection = client.db('top_gear_perform').collection('notes');
+        const vacationCollection = client.db('top_gear_perform').collection('vacation');
 
         //AUTH 
         app.post('/login', async (req, res) => {
@@ -247,6 +248,12 @@ async function run() {
             const notes = await notesCollection.find().toArray();
             res.send(notes);
         });
+
+        // ========= vacation api ====================
+        app.get('/vacation', async (req, res) => {
+            const dayOff = await vacationCollection.find().toArray();
+            res.send(dayOff)
+        })
 
         // app.get('/timeAvailable', async (req, res) => {
         //     const date = req.query.date || 'Aug 16, 2022'
