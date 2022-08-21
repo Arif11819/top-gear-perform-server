@@ -6,7 +6,7 @@ require('dotenv').config();
 var nodemailer = require('nodemailer');
 var sgTransport = require('nodemailer-sendgrid-transport');
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 4000;
 
 
 // middleware
@@ -89,9 +89,11 @@ async function run() {
         await client.connect();
 
 
+
         const userCollection = client.db('top_gear_perform').collection('users')
+
         const taskCollection = client.db('top_gear_perform').collection('tasks');
-        const scheduleCollection = client.db('top_gear_perform').collection('scheduled-task');
+
         const scheduleUserDataCollection = client.db('top_gear_perform').collection('scheduleUserData');
         const timeSlotsCollection = client.db('top_gear_perform').collection('timeSlots');
         const notesCollection = client.db('top_gear_perform').collection('notes');
@@ -115,7 +117,6 @@ async function run() {
 
         app.post('/users', async (req, res) => {
             const userData = req.body
-            console.log(userData)
             const result = await userCollection.insertOne(userData)
             res.send(result)
 
@@ -130,14 +131,18 @@ async function run() {
             const task = req.body;
             const result = await taskCollection.insertOne(task);
             res.send(result);
-
         });
-
         app.get('/task/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const tasks = await taskCollection.findOne(query);
             res.send(tasks);
+        });
+        app.delete('/task/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await taskCollection.deleteOne(query);
+            res.send(result);
         });
         const progressCollection = client.db('top_gear_perform').collection('progress-task');
         app.get('/progress', async (req, res) => {
@@ -150,14 +155,18 @@ async function run() {
             const task = req.body;
             const result = await progressCollection.insertOne(task);
             res.send(result);
-
         });
-
         app.get('/progress/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const progress = await progressCollection.findOne(query);
             res.send(progress);
+        });
+        app.delete('/progress/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await progressCollection.deleteOne(query);
+            res.send(result);
         });
         const completeCollection = client.db('top_gear_perform').collection('completed-tasks');
         app.get('/complete', async (req, res) => {
@@ -170,9 +179,7 @@ async function run() {
             const complete = req.body;
             const result = await completeCollection.insertOne(complete);
             res.send(result);
-
         });
-
         app.get('/complete/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
@@ -180,31 +187,66 @@ async function run() {
             res.send(complete);
         });
 
+        app.delete('/complete/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await completeCollection.deleteOne(query);
+            res.send(result);
+        });
+        const collections = client.db('top_gear_perform').collection('scheduled-task');
+
         app.get('/schedule', async (req, res) => {
             const query = {};
-            const cursor = scheduleCollection.find(query);
+            const cursor = collections.find(query);
             const schedule = await cursor.toArray();
             res.send(schedule)
         });
         app.post('/schedule', async (req, res) => {
             const schedule = req.body;
-            const result = await scheduleCollection.insertOne(schedule);
+            const result = await collectionss.insertOne(schedule);
             res.send(result);
-
         });
-
         app.get('/schedule/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
-            const schedule = await scheduleCollection.findOne(query);
+            const schedule = await collectionss.findOne(query);
             res.send(schedule);
         });
-
+        app.delete('/schedule/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await collectionss.deleteOne(query);
+            res.send(result);
+        });
+        const employeeCollection = client.db('Company-employee').collection('employees');
+        app.get('/employee', async (req, res) => {
+            const query = {};
+            const cursor = employeeCollection.find(query);
+            const employees = await cursor.toArray();
+            res.send(employees);
+        });
+        app.get('/employee/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const employees = await employeeCollection.findOne(query);
+            res.send(employees);
+        });
+        app.post('/employee', async (req, res) => {
+            const employees = req.body;
+            const result = await employeeCollection.insertOne(employees);
+            res.send(result);
+        });
+        app.delete('/employee/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await employeeCollection.deleteOne(query);
+            res.send(result);
+        });
 
         console.log('Database connected');
 
         const reviewsCollection = client.db('top_gear_perform').collection('reviews');
-        //  const scheduleCollection = client.db("UserData").collection('scheduleData');
+        //  const collectionss = client.db("UserData").collection('scheduleData');
 
         app.get('/reviews', async (req, res) => {
             const query = {};
@@ -218,7 +260,15 @@ async function run() {
                 const reviews = await reviewsCollection.findOne(query);
                 res.send(reviews);
             });
+
         });
+        app.post('/employee', async (req, res) => {
+            const employees = req.body;
+            const result = await employeeCollection.insertOne(employees);
+            res.send(result);
+
+        });
+
 
         //============== Mazharul ===================
         //post schedule data
@@ -271,6 +321,14 @@ async function run() {
         //     res.send(timeSlots)
         // })
 
+
+        // get all news
+        const newsCollection = client.db('top_gear_perform').collection('news');
+        app.get('/news', async (req, res) => {
+            const query = {};
+            const news = await newsCollection.find(query).toArray();
+            res.send(news);
+        });
 
     }
     finally {
