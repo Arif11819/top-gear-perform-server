@@ -312,7 +312,15 @@ async function run() {
                 const reviews = await reviewsCollection.findOne(query);
                 res.send(reviews);
             });
+
         });
+        app.post('/employee', async (req, res) => {
+            const employees = req.body;
+            const result = await employeeCollection.insertOne(employees);
+            res.send(result);
+
+        });
+
 
         //============== Mazharul ===================
         //post schedule data
@@ -367,6 +375,12 @@ async function run() {
             const news = await newsCollection.find(query).toArray();
             res.send(news);
         });
+        // post news 
+        app.post('/postNews',async(req,res)=>{
+            const news = req.body
+            const result =await newsCollection.insertOne(news)
+            res.send(result)
+        })
 
     }
     finally {
