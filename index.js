@@ -330,6 +330,10 @@ async function run() {
             const newVacation = req.body;
             const result = await vacationStoreCollection.insertOne(newVacation);
             res.send(result)
+        });
+        app.get('/vacationstore', async (req, res) => {
+            const vacationStore = await vacationStoreCollection.find().toArray();
+            res.send(vacationStore);
         })
 
 
