@@ -150,6 +150,12 @@ async function run() {
             const news = await newsCollection.find(query).toArray();
             res.send(news);
         });
+        // post news 
+        app.post('/postNews',async(req,res)=>{
+            const news = req.body
+            const result =await newsCollection.insertOne(news)
+            res.send(result)
+        })
 
     }
     finally {
