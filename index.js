@@ -6,7 +6,7 @@ require('dotenv').config();
 var nodemailer = require('nodemailer');
 var sgTransport = require('nodemailer-sendgrid-transport');
 const app = express();
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 5000;
 
 
 // middleware
@@ -87,13 +87,8 @@ function scheduleSendEmail(newScheduleData) {
 async function run() {
     try {
         await client.connect();
-
-
-
         const userCollection = client.db('top_gear_perform').collection('users')
-
         const taskCollection = client.db('top_gear_perform').collection('tasks');
-
         const scheduleUserDataCollection = client.db('top_gear_perform').collection('scheduleUserData');
         const timeSlotsCollection = client.db('top_gear_perform').collection('timeSlots');
         const notesCollection = client.db('top_gear_perform').collection('notes');
@@ -119,7 +114,13 @@ async function run() {
             const result = await userCollection.insertOne(userData)
             res.send(result)
 
-        })
+        });
+        app.get('/users', async (req, res) => {
+            const query = {};
+            const cursor = userCollection.find(query);
+            const users = await cursor.toArray();
+            res.send(users)
+        });
         app.get('/task', async (req, res) => {
             const query = {};
             const cursor = taskCollection.find(query);
@@ -192,29 +193,29 @@ async function run() {
             const result = await completeCollection.deleteOne(query);
             res.send(result);
         });
-        const collections = client.db('top_gear_perform').collection('scheduled-task');
+        const schemeCollection = client.db('top_gear_perform').collection('scheduled-task');
 
         app.get('/schedule', async (req, res) => {
             const query = {};
-            const cursor = collections.find(query);
+            const cursor = schemeCollection.find(query);
             const schedule = await cursor.toArray();
             res.send(schedule)
         });
         app.post('/schedule', async (req, res) => {
             const schedule = req.body;
-            const result = await collectionss.insertOne(schedule);
+            const result = await schemeCollection.insertOne(schedule);
             res.send(result);
         });
         app.get('/schedule/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
-            const schedule = await collectionss.findOne(query);
+            const schedule = await schemeCollection.findOne(query);
             res.send(schedule);
         });
         app.delete('/schedule/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
-            const result = await collectionss.deleteOne(query);
+            const result = await schemeCollection.deleteOne(query);
             res.send(result);
         });
         const employeeCollection = client.db('Company-employee').collection('employees');
@@ -239,6 +240,58 @@ async function run() {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await employeeCollection.deleteOne(query);
+            res.send(result);
+        });
+
+        const blogCollection = client.db('TopGear-Blogs').collection('Blogs');
+
+        app.get('/blog', async (req, res) => {
+            const query = {};
+            const cursor = blogCollection.find(query);
+            const blog = await cursor.toArray();
+            res.send(blog)
+        });
+        app.post('/blog', async (req, res) => {
+            const schedule = req.body;
+            const result = await blogCollection.insertOne(schedule);
+            res.send(result);
+        });
+        app.get('/blog/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const blog = await blogCollection.findOne(query);
+            res.send(blog);
+        });
+        app.delete('/blog/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await blogCollection.deleteOne(query);
+            res.send(result);
+        });
+
+        const ebookCollection = client.db('TopGear-ebooks').collection('E-books');
+
+        app.get('/ebook', async (req, res) => {
+            const query = {};
+            const cursor = ebookCollection.find(query);
+            const blog = await cursor.toArray();
+            res.send(blog)
+        });
+        app.post('/ebook', async (req, res) => {
+            const schedule = req.body;
+            const result = await ebookCollection.insertOne(schedule);
+            res.send(result);
+        });
+        app.get('/ebook/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const ebook = await ebookCollection.findOne(query);
+            res.send(ebook);
+        });
+        app.delete('/ebook/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await ebookCollection.deleteOne(query);
             res.send(result);
         });
 
@@ -322,6 +375,12 @@ async function run() {
             const news = await newsCollection.find(query).toArray();
             res.send(news);
         });
+        // post news 
+        app.post('/postNews', async (req, res) => {
+            const news = req.body
+            const result = await newsCollection.insertOne(news)
+            res.send(result)
+        })
 
     }
     finally {
