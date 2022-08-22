@@ -376,9 +376,9 @@ async function run() {
             res.send(news);
         });
         // post news 
-        app.post('/postNews',async(req,res)=>{
+        app.post('/postNews', async (req, res) => {
             const news = req.body
-            const result =await newsCollection.insertOne(news)
+            const result = await newsCollection.insertOne(news)
             res.send(result)
         })
 
