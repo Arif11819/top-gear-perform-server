@@ -301,14 +301,23 @@ async function run() {
         });
 
         // ========= vacation api ====================
-        app.get('/vacation', async (req, res) => {
-            const dayOff = await vacationCollection.find().toArray();
+        app.get('/vacation/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email }
+            const dayOff = await vacationCollection.find(query).toArray();
             res.send(dayOff)
         });
 
-        app.get('/vacation/:name', async (req, res) => {
-            const name = req.params.name;
-            const query = { name: name };
+        app.post('/vacation', async (req, res) => {
+            const newVacation = req.body;
+            const result = await vacationCollection.insertMany(newVacation);
+            res.send(result);
+        })
+
+        app.get('/namevacation', async (req, res) => {
+            const type = req.query.type;
+            const email = req.query.email;
+            const query = { name: type, email: email };
             const vacation = await vacationCollection.findOne(query);
             res.send(vacation);
         })
@@ -316,7 +325,7 @@ async function run() {
         app.put('/vacation/:name', async (req, res) => {
             const name = req.params.name;
             const update = req.body;
-            const fillter = { name: name };
+            const fillter = { name: name, email: update.email };
             const options = { upsert: true };
             const updatedoc = {
                 $set: {
@@ -331,8 +340,10 @@ async function run() {
             const result = await vacationStoreCollection.insertOne(newVacation);
             res.send(result)
         });
-        app.get('/vacationstore', async (req, res) => {
-            const vacationStore = await vacationStoreCollection.find().toArray();
+        app.get('/vacationstore/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const vacationStore = await vacationStoreCollection.find(query).toArray();
             res.send(vacationStore);
         })
 
