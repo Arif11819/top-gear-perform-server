@@ -99,6 +99,7 @@ async function run() {
         const notesCollection = client.db('top_gear_perform').collection('notes');
         const vacationCollection = client.db('top_gear_perform').collection('vacation');
         const vacationStoreCollection = client.db('top_gear_perform').collection('vacationStore');
+        const userGoalCollection = client.db('top_gear_perform').collection('userGoal');
 
         //AUTH 
         app.post('/login', async (req, res) => {
@@ -345,6 +346,19 @@ async function run() {
             const query = { email: email };
             const vacationStore = await vacationStoreCollection.find(query).toArray();
             res.send(vacationStore);
+        });
+
+        // =============== add goal in dashboard =====================
+        app.post('/usergoal', async (req, res) => {
+            const newGoal = req.body;
+            const result = await userGoalCollection.insertOne(newGoal);
+            res.send(result);
+        });
+        app.get('/usergoal/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const result = await userGoalCollection.find(query).toArray();
+            res.send(result);
         })
 
 
