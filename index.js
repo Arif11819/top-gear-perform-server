@@ -9,7 +9,6 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 
-
 // middleware
 app.use(cors());
 app.use(express.json());
@@ -89,13 +88,8 @@ function scheduleSendEmail(newScheduleData) {
 async function run() {
     try {
         await client.connect();
-
-
-
         const userCollection = client.db('top_gear_perform').collection('users')
-
         const taskCollection = client.db('top_gear_perform').collection('tasks');
-
         const scheduleUserDataCollection = client.db('top_gear_perform').collection('scheduleUserData');
         const timeSlotsCollection = client.db('top_gear_perform').collection('timeSlots');
         const notesCollection = client.db('top_gear_perform').collection('notes');
@@ -128,6 +122,9 @@ async function run() {
             res.send(result);
 
         })
+        const vacationCollection = client.db('top_gear_perform').collection('vacation');
+        const vacationStoreCollection = client.db('top_gear_perform').collection('vacationStore');
+        const userGoalCollection = client.db('top_gear_perform').collection('userGoal');
 
         //AUTH 
         app.post('/login', async (req, res) => {
@@ -150,7 +147,13 @@ async function run() {
             const result = await userCollection.insertOne(userData)
             res.send(result)
 
-        })
+        });
+        app.get('/users', async (req, res) => {
+            const query = {};
+            const cursor = userCollection.find(query);
+            const users = await cursor.toArray();
+            res.send(users)
+        });
         app.get('/task', async (req, res) => {
             const query = {};
             const cursor = taskCollection.find(query);
@@ -223,29 +226,29 @@ async function run() {
             const result = await completeCollection.deleteOne(query);
             res.send(result);
         });
-        const collections = client.db('top_gear_perform').collection('scheduled-task');
+        const schemeCollection = client.db('top_gear_perform').collection('scheduled-task');
 
         app.get('/schedule', async (req, res) => {
             const query = {};
-            const cursor = collections.find(query);
+            const cursor = schemeCollection.find(query);
             const schedule = await cursor.toArray();
             res.send(schedule)
         });
         app.post('/schedule', async (req, res) => {
             const schedule = req.body;
-            const result = await collectionss.insertOne(schedule);
+            const result = await schemeCollection.insertOne(schedule);
             res.send(result);
         });
         app.get('/schedule/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
-            const schedule = await collectionss.findOne(query);
+            const schedule = await schemeCollection.findOne(query);
             res.send(schedule);
         });
         app.delete('/schedule/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
-            const result = await collectionss.deleteOne(query);
+            const result = await schemeCollection.deleteOne(query);
             res.send(result);
         });
         const employeeCollection = client.db('Company-employee').collection('employees');
@@ -270,6 +273,58 @@ async function run() {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await employeeCollection.deleteOne(query);
+            res.send(result);
+        });
+
+        const blogCollection = client.db('TopGear-Blogs').collection('Blogs');
+
+        app.get('/blog', async (req, res) => {
+            const query = {};
+            const cursor = blogCollection.find(query);
+            const blog = await cursor.toArray();
+            res.send(blog)
+        });
+        app.post('/blog', async (req, res) => {
+            const schedule = req.body;
+            const result = await blogCollection.insertOne(schedule);
+            res.send(result);
+        });
+        app.get('/blog/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const blog = await blogCollection.findOne(query);
+            res.send(blog);
+        });
+        app.delete('/blog/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await blogCollection.deleteOne(query);
+            res.send(result);
+        });
+
+        const ebookCollection = client.db('TopGear-ebooks').collection('E-books');
+
+        app.get('/ebook', async (req, res) => {
+            const query = {};
+            const cursor = ebookCollection.find(query);
+            const blog = await cursor.toArray();
+            res.send(blog)
+        });
+        app.post('/ebook', async (req, res) => {
+            const schedule = req.body;
+            const result = await ebookCollection.insertOne(schedule);
+            res.send(result);
+        });
+        app.get('/ebook/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const ebook = await ebookCollection.findOne(query);
+            res.send(ebook);
+        });
+        app.delete('/ebook/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await ebookCollection.deleteOne(query);
             res.send(result);
         });
 
@@ -329,6 +384,73 @@ async function run() {
             res.send(notes);
         });
 
+        // ========= vacation api ====================
+        app.get('/vacation/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email }
+            const dayOff = await vacationCollection.find(query).toArray();
+            res.send(dayOff)
+        });
+
+        app.post('/vacation', async (req, res) => {
+            const newVacation = req.body;
+            const result = await vacationCollection.insertMany(newVacation);
+            res.send(result);
+        })
+
+        app.get('/namevacation', async (req, res) => {
+            const type = req.query.type;
+            const email = req.query.email;
+            const query = { name: type, email: email };
+            const vacation = await vacationCollection.findOne(query);
+            res.send(vacation);
+        })
+
+        app.put('/vacation/:name', async (req, res) => {
+            const name = req.params.name;
+            const update = req.body;
+            const fillter = { name: name, email: update.email };
+            const options = { upsert: true };
+            const updatedoc = {
+                $set: {
+                    day: update.count
+                }
+            };
+            const result = await vacationCollection.updateOne(fillter, updatedoc, options);
+            res.send(result)
+        });
+        app.post('/vacationstore', async (req, res) => {
+            const newVacation = req.body;
+            const result = await vacationStoreCollection.insertOne(newVacation);
+            res.send(result)
+        });
+        app.get('/vacationstore/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const vacationStore = await vacationStoreCollection.find(query).toArray();
+            res.send(vacationStore);
+        });
+
+        // =============== add goal in dashboard =====================
+        app.post('/usergoal', async (req, res) => {
+            const newGoal = req.body;
+            const result = await userGoalCollection.insertOne(newGoal);
+            res.send(result);
+        });
+        app.get('/usergoal/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { user: email };
+            const result = await userGoalCollection.find(query).toArray();
+            res.send(result);
+        })
+        app.delete('/goal/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await userGoalCollection.deleteOne(query);
+            res.send(result);
+        })
+
+
         // app.get('/timeAvailable', async (req, res) => {
         //     const date = req.query.date || 'Aug 16, 2022'
         //     const timeSlots = await timeSlotsCollection.find().toArray();
@@ -353,6 +475,12 @@ async function run() {
             const news = await newsCollection.find(query).toArray();
             res.send(news);
         });
+        // post news 
+        app.post('/postNews', async (req, res) => {
+            const news = req.body
+            const result = await newsCollection.insertOne(news)
+            res.send(result)
+        })
 
     }
     finally {
