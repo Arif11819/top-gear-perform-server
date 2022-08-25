@@ -112,6 +112,8 @@ async function run() {
             res.send(user)
         })
 
+
+
         app.post('/users', async (req, res) => {
             const userData = req.body
             const result = await userCollection.insertOne(userData)
@@ -124,6 +126,14 @@ async function run() {
             const users = await cursor.toArray();
             res.send(users)
         });
+
+        app.delete('/users/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await userCollection.deleteOne(query);
+            res.send(result);
+        });
+
         app.get('/task', async (req, res) => {
             const query = {};
             const cursor = taskCollection.find(query);
@@ -239,6 +249,11 @@ async function run() {
             const result = await employeeCollection.insertOne(employees);
             res.send(result);
         });
+        app.post('/employee', async (req, res) => {
+            const employees = req.body;
+            const result = await employeeCollection.insertOne(employees);
+            res.send(result);
+        });
         app.delete('/employee/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
@@ -317,12 +332,27 @@ async function run() {
             });
 
         });
-        app.post('/employee', async (req, res) => {
-            const employees = req.body;
-            const result = await employeeCollection.insertOne(employees);
-            res.send(result);
+        const countryCollection = client.db('All-Country').collection('Countries');
 
+        app.get('/country', async (req, res) => {
+            const query = {};
+            const cursor = countryCollection.find(query);
+            const country = await cursor.toArray();
+            res.send(country)
         });
+        app.get('/scheduleUser', async (req, res) => {
+            const query = {};
+            const cursor = scheduleUserDataCollection.find(query);
+            const scheduleUser = await cursor.toArray();
+            res.send(scheduleUser)
+        });
+        app.delete('/scheduleUser/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await scheduleUserDataCollection.deleteOne(query);
+            res.send(result);
+        });
+
 
 
         //============== Mazharul ===================
