@@ -382,7 +382,7 @@ async function run() {
             res.send(result)
         })
 
-        // Sumaya
+        // Sumaya's code
 
         const emergencyCollection = client.db('emergency-contact').collection('emgcontact');
         app.get('/emgcontact', async ( req, res) => {
