@@ -9,9 +9,11 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 
+
 // middleware
 app.use(cors());
 app.use(express.json());
+
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.gflsp.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -101,8 +103,30 @@ async function run() {
         const courseCollection = client.db('top_gear_perform').collection('course');
 
         // course
-        app.get('/coures', (req, res) =>{
-            res.send('hello i am ready')
+        app.get('/course', async (req, res) =>{
+            // res.send('hello i am ready')
+            const query = {};
+            const course = courseCollection.find(query);
+            const item =  await course.toArray();
+            res.send(item);
+
+            
+        })
+
+        // course post 
+        app.post('/course', async (req, res)=>{
+            const course = req.body;
+            const result = await courseCollection.insertOne(course);
+            res.send(result);
+        })
+
+        // course delete
+        app.delete('/course/:id', async (req, res) =>{
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await courseCollection.deleteOne(query);
+            res.send(result);
+
         })
 
         //AUTH 
