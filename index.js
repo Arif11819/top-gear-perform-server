@@ -92,6 +92,9 @@ async function run() {
         const scheduleUserDataCollection = client.db('top_gear_perform').collection('scheduleUserData');
         const timeSlotsCollection = client.db('top_gear_perform').collection('timeSlots');
         const notesCollection = client.db('top_gear_perform').collection('notes');
+        const vacationCollection = client.db('top_gear_perform').collection('vacation');
+        const vacationStoreCollection = client.db('top_gear_perform').collection('vacationStore');
+        const userGoalCollection = client.db('top_gear_perform').collection('userGoal');
 
         //AUTH 
         app.post('/login', async (req, res) => {
@@ -109,6 +112,8 @@ async function run() {
             res.send(user)
         })
 
+
+
         app.post('/users', async (req, res) => {
             const userData = req.body
             const result = await userCollection.insertOne(userData)
@@ -121,6 +126,14 @@ async function run() {
             const users = await cursor.toArray();
             res.send(users)
         });
+
+        app.delete('/users/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await userCollection.deleteOne(query);
+            res.send(result);
+        });
+
         app.get('/task', async (req, res) => {
             const query = {};
             const cursor = taskCollection.find(query);
@@ -236,6 +249,11 @@ async function run() {
             const result = await employeeCollection.insertOne(employees);
             res.send(result);
         });
+        app.post('/employee', async (req, res) => {
+            const employees = req.body;
+            const result = await employeeCollection.insertOne(employees);
+            res.send(result);
+        });
         app.delete('/employee/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
@@ -314,12 +332,27 @@ async function run() {
             });
 
         });
-        app.post('/employee', async (req, res) => {
-            const employees = req.body;
-            const result = await employeeCollection.insertOne(employees);
-            res.send(result);
+        const countryCollection = client.db('All-Country').collection('Countries');
 
+        app.get('/country', async (req, res) => {
+            const query = {};
+            const cursor = countryCollection.find(query);
+            const country = await cursor.toArray();
+            res.send(country)
         });
+        app.get('/scheduleUser', async (req, res) => {
+            const query = {};
+            const cursor = scheduleUserDataCollection.find(query);
+            const scheduleUser = await cursor.toArray();
+            res.send(scheduleUser)
+        });
+        app.delete('/scheduleUser/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await scheduleUserDataCollection.deleteOne(query);
+            res.send(result);
+        });
+
 
 
         //============== Mazharul ===================
@@ -350,6 +383,73 @@ async function run() {
             const notes = await notesCollection.find().toArray();
             res.send(notes);
         });
+
+        // ========= vacation api ====================
+        app.get('/vacation/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email }
+            const dayOff = await vacationCollection.find(query).toArray();
+            res.send(dayOff)
+        });
+
+        app.post('/vacation', async (req, res) => {
+            const newVacation = req.body;
+            const result = await vacationCollection.insertMany(newVacation);
+            res.send(result);
+        })
+
+        app.get('/namevacation', async (req, res) => {
+            const type = req.query.type;
+            const email = req.query.email;
+            const query = { name: type, email: email };
+            const vacation = await vacationCollection.findOne(query);
+            res.send(vacation);
+        })
+
+        app.put('/vacation/:name', async (req, res) => {
+            const name = req.params.name;
+            const update = req.body;
+            const fillter = { name: name, email: update.email };
+            const options = { upsert: true };
+            const updatedoc = {
+                $set: {
+                    day: update.count
+                }
+            };
+            const result = await vacationCollection.updateOne(fillter, updatedoc, options);
+            res.send(result)
+        });
+        app.post('/vacationstore', async (req, res) => {
+            const newVacation = req.body;
+            const result = await vacationStoreCollection.insertOne(newVacation);
+            res.send(result)
+        });
+        app.get('/vacationstore/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const vacationStore = await vacationStoreCollection.find(query).toArray();
+            res.send(vacationStore);
+        });
+
+        // =============== add goal in dashboard =====================
+        app.post('/usergoal', async (req, res) => {
+            const newGoal = req.body;
+            const result = await userGoalCollection.insertOne(newGoal);
+            res.send(result);
+        });
+        app.get('/usergoal/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { user: email };
+            const result = await userGoalCollection.find(query).toArray();
+            res.send(result);
+        })
+        app.delete('/goal/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await userGoalCollection.deleteOne(query);
+            res.send(result);
+        })
+
 
         // app.get('/timeAvailable', async (req, res) => {
         //     const date = req.query.date || 'Aug 16, 2022'
