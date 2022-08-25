@@ -482,6 +482,30 @@ async function run() {
             res.send(result)
         })
 
+        // Sumaya's code
+
+        const emergencyCollection = client.db('emergency-contact').collection('emgcontact');
+        app.get('/emgcontact', async ( req, res) => {
+            const query = {};
+            const emgcontact = await emergencyCollection.find(query).toArray();
+            res.send(emgcontact);
+        });
+        // post emgcontact 
+        app.post('/emgcontact', async (req, res) => {
+            const emgcontact = req.body;
+            const result = await emergencyCollection.insertOne(emgcontact);
+            res.send(result);
+        })
+        //  delete emgcontact
+        app.delete('/emgcontact/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await emergencyCollection.deleteOne(query);
+            res.send(result);
+        });
+
+
+
     }
     finally {
 
