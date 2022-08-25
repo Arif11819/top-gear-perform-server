@@ -97,25 +97,25 @@ async function run() {
         const courseCollection = client.db('top_gear_perform').collection('course');
 
         // course
-        app.get('/course', async (req, res) =>{
+        app.get('/course', async (req, res) => {
             // res.send('hello i am ready')
             const query = {};
             const course = courseCollection.find(query);
-            const item =  await course.toArray();
+            const item = await course.toArray();
             res.send(item);
 
-            
+
         })
 
         // course post 
-        app.post('/course', async (req, res)=>{
+        app.post('/course', async (req, res) => {
             const course = req.body;
             const result = await courseCollection.insertOne(course);
             res.send(result);
         })
 
         // course delete
-        app.delete('/course/:id', async (req, res) =>{
+        app.delete('/course/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await courseCollection.deleteOne(query);
@@ -465,6 +465,19 @@ async function run() {
             const result = await userGoalCollection.deleteOne(query);
             res.send(result);
         })
+
+        app.get('/scheduleUser', async (req, res) => {
+            const query = {};
+            const cursor = scheduleUserDataCollection.find(query);
+            const scheduleUser = await cursor.toArray();
+            res.send(scheduleUser)
+        });
+        app.delete('/scheduleUser/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await scheduleUserDataCollection.deleteOne(query);
+            res.send(result);
+        });
 
 
         // app.get('/timeAvailable', async (req, res) => {
