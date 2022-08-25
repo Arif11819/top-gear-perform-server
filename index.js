@@ -344,6 +344,19 @@ async function run() {
             res.send(result);
         });
 
+        app.get('/scheduleUser', async (req, res) => {
+            const query = {};
+            const cursor = scheduleUserDataCollection.find(query);
+            const scheduleUser = await cursor.toArray();
+            res.send(scheduleUser)
+        });
+        app.delete('/scheduleUser/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await scheduleUserDataCollection.deleteOne(query);
+            res.send(result);
+        });
+
         console.log('Database connected');
 
         const reviewsCollection = client.db('top_gear_perform').collection('reviews');
