@@ -499,7 +499,14 @@ async function run() {
             const query = { _id: ObjectId(id) };
             const result = await userGoalCollection.deleteOne(query);
             res.send(result);
-        })
+        });
+        // verify admin 
+        app.get('/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = await userCollection.findOne({ userEmail: email });
+            const isAdmin = user.role === 'admin';
+            res.send({ admin: isAdmin });
+        });
 
 
         // app.get('/timeAvailable', async (req, res) => {
