@@ -460,7 +460,7 @@ async function run() {
             const newVacation = req.body;
             const result = await vacationCollection.insertMany(newVacation);
             res.send(result);
-        })
+        });
 
         app.get('/namevacation', async (req, res) => {
             const type = req.query.type;
@@ -468,7 +468,7 @@ async function run() {
             const query = { name: type, email: email };
             const vacation = await vacationCollection.findOne(query);
             res.send(vacation);
-        })
+        });
 
         app.put('/vacation/:name', async (req, res) => {
             const name = req.params.name;
