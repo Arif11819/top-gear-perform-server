@@ -506,13 +506,13 @@ async function run() {
             const query = { user: email };
             const result = await userGoalCollection.find(query).toArray();
             res.send(result);
-        })
+        });
         app.delete('/goal/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await userGoalCollection.deleteOne(query);
             res.send(result);
-        })
+        });
 
         app.get('/scheduleUser', async (req, res) => {
             const query = {};
