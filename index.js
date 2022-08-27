@@ -533,7 +533,7 @@ async function run() {
             res.send(result)
         });
 
-        const courseCollection = client.db('top_gear_perform').collection('course');
+
 
         // course
         app.get('/course', async (req, res) => {
