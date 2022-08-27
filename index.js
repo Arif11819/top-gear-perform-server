@@ -112,8 +112,6 @@ async function run() {
             res.send(user)
         })
 
-
-
         app.post('/users', async (req, res) => {
             const userData = req.body
             const result = await userCollection.insertOne(userData)
@@ -126,6 +124,8 @@ async function run() {
             const users = await cursor.toArray();
             res.send(users)
         });
+
+
 
         app.delete('/users/:id', async (req, res) => {
             const id = req.params.id;
@@ -480,6 +480,35 @@ async function run() {
             const news = req.body
             const result = await newsCollection.insertOne(news)
             res.send(result)
+        });
+
+        const courseCollection = client.db('top_gear_perform').collection('course');
+
+        // course
+        app.get('/course', async (req, res) => {
+            // res.send('hello i am ready')
+            const query = {};
+            const course = courseCollection.find(query);
+            const item = await course.toArray();
+            res.send(item);
+
+
+        })
+
+        // course post 
+        app.post('/course', async (req, res) => {
+            const course = req.body;
+            const result = await courseCollection.insertOne(course);
+            res.send(result);
+        })
+
+        // course delete
+        app.delete('/course/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await courseCollection.deleteOne(query);
+            res.send(result);
+
         })
 
     }
