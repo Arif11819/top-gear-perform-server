@@ -13,6 +13,7 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.gflsp.mongodb.net/?retryWrites=true&w=majority`;
 
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
@@ -92,6 +93,35 @@ async function run() {
         const scheduleUserDataCollection = client.db('top_gear_perform').collection('scheduleUserData');
         const timeSlotsCollection = client.db('top_gear_perform').collection('timeSlots');
         const notesCollection = client.db('top_gear_perform').collection('notes');
+        // coures
+        const courseCollection = client.db('top_gear_perform').collection('course');
+
+        // course
+        app.get('/course', async (req, res) => {
+            // res.send('hello i am ready')
+            const query = {};
+            const course = courseCollection.find(query);
+            const item = await course.toArray();
+            res.send(item);
+
+
+        })
+
+        // course post 
+        app.post('/course', async (req, res) => {
+            const course = req.body;
+            const result = await courseCollection.insertOne(course);
+            res.send(result);
+        })
+
+        // course delete
+        app.delete('/course/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await courseCollection.deleteOne(query);
+            res.send(result);
+
+        })
         const vacationCollection = client.db('top_gear_perform').collection('vacation');
         const vacationStoreCollection = client.db('top_gear_perform').collection('vacationStore');
         const userGoalCollection = client.db('top_gear_perform').collection('userGoal');
@@ -249,6 +279,7 @@ async function run() {
             const result = await employeeCollection.insertOne(employees);
             res.send(result);
         });
+
         app.post('/employee', async (req, res) => {
             const employees = req.body;
             const result = await employeeCollection.insertOne(employees);
@@ -331,6 +362,26 @@ async function run() {
                 res.send(reviews);
             });
 
+        });
+
+        app.post('/reviews', async (req, res) => {
+            const reviews = req.body;
+            const result = await reviewsCollection.insertOne(reviews);
+            res.send(result);
+
+        });
+
+        app.delete('/reviews/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await reviewsCollection.deleteOne(query);
+            res.send(result);
+        });
+
+        app.post('/employee', async (req, res) => {
+            const employees = req.body;
+            const result = await employeeCollection.insertOne(employees);
+            res.send(result);
         });
         const countryCollection = client.db('All-Country').collection('Countries');
 
@@ -510,6 +561,30 @@ async function run() {
             res.send(result);
 
         })
+
+        // Sumaya's code
+
+        const emergencyCollection = client.db('emergency-contact').collection('emgcontact');
+        app.get('/emgcontact', async (req, res) => {
+            const query = {};
+            const emgcontact = await emergencyCollection.find(query).toArray();
+            res.send(emgcontact);
+        });
+        // post emgcontact 
+        app.post('/emgcontact', async (req, res) => {
+            const emgcontact = req.body;
+            const result = await emergencyCollection.insertOne(emgcontact);
+            res.send(result);
+        })
+        //  delete emgcontact
+        app.delete('/emgcontact/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await emergencyCollection.deleteOne(query);
+            res.send(result);
+        });
+
+
 
     }
     finally {
