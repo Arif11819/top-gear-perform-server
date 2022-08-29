@@ -476,6 +476,23 @@ async function run() {
             const result = await vacationStoreCollection.insertOne(newVacation);
             res.send(result)
         });
+
+        app.get('/vacationstore', async (req, res) => {
+            const vacationAll = await vacationStoreCollection.find().toArray();
+            res.send(vacationAll);
+        });
+
+        app.put('/vacationstore/feedback/:id', async (req, res) => {
+            const id = req.params.id;
+            const feedbackText = req.body;
+            const filter = { _id: ObjectId(id) };
+            const updateDoc = {
+                $set: { feedback: feedbackText.text },
+            };
+            const result = await vacationStoreCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        });
+
         app.get('/vacationstore/:email', async (req, res) => {
             const email = req.params.email;
             const query = { email: email };
