@@ -93,6 +93,7 @@ async function run() {
         const scheduleUserDataCollection = client.db('top_gear_perform').collection('scheduleUserData');
         const timeSlotsCollection = client.db('top_gear_perform').collection('timeSlots');
         const notesCollection = client.db('top_gear_perform').collection('notes');
+        const chatuserCollection = client.db('top_gear_perform').collection('chatuser');
         // coures
         const courseCollection = client.db('top_gear_perform').collection('course');
 
@@ -507,6 +508,12 @@ async function run() {
             const isAdmin = user.role === 'admin';
             res.send({ admin: isAdmin });
         });
+
+        app.post('/chatuser', async (req, res) => {
+            const newChat = req.body;
+            const result = await chatuserCollection.insertOne(newChat);
+            res.send(result);
+        })
 
 
         // app.get('/timeAvailable', async (req, res) => {
