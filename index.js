@@ -1,3 +1,4 @@
+
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
@@ -154,7 +155,15 @@ async function run() {
             const users = await cursor.toArray();
             res.send(users)
         });
-
+        app.put('/user/admin/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const updateDoc = {
+                $set: { role: 'admin' },
+            };
+            const result = await userCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        });
 
 
         app.delete('/users/:id', async (req, res) => {
@@ -175,6 +184,12 @@ async function run() {
             const result = await taskCollection.insertOne(task);
             res.send(result);
         });
+        app.get('/task/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { user: email };
+            const result = await taskCollection.find(query).toArray();
+            res.send(result);
+        })
         app.get('/task/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
@@ -199,6 +214,12 @@ async function run() {
             const result = await progressCollection.insertOne(task);
             res.send(result);
         });
+        app.get('/progress/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { user: email };
+            const result = await progressCollection.find(query).toArray();
+            res.send(result);
+        })
         app.get('/progress/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
@@ -223,12 +244,19 @@ async function run() {
             const result = await completeCollection.insertOne(complete);
             res.send(result);
         });
+        app.get('/complete/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { user: email };
+            const result = await completeCollection.find(query).toArray();
+            res.send(result);
+        })
         app.get('/complete/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const complete = await completeCollection.findOne(query);
             res.send(complete);
         });
+
 
         app.delete('/complete/:id', async (req, res) => {
             const id = req.params.id;
@@ -249,12 +277,20 @@ async function run() {
             const result = await schemeCollection.insertOne(schedule);
             res.send(result);
         });
+        app.get('/schedule/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { user: email };
+            const result = await schemeCollection.find(query).toArray();
+            res.send(result);
+        })
         app.get('/schedule/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const schedule = await schemeCollection.findOne(query);
             res.send(schedule);
         });
+
+
         app.delete('/schedule/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
@@ -607,3 +643,4 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
     console.log(`TopGear Perform app listening on port ${port}`);
 })
+
