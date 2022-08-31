@@ -530,6 +530,10 @@ async function run() {
             const newChat = req.body;
             const result = await chatuserCollection.insertOne(newChat);
             res.send(result);
+        });
+        app.get('/chatuser', async (req, res) => {
+            const chats = await chatuserCollection.find().toArray();
+            res.send(chats)
         })
 
 
