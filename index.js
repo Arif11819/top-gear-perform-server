@@ -542,24 +542,6 @@ async function run() {
             res.send(result);
         });
 
-
-        // app.get('/timeAvailable', async (req, res) => {
-        //     const date = req.query.date || 'Aug 16, 2022'
-        //     const timeSlots = await timeSlotsCollection.find().toArray();
-        //     const query = { date: date }
-        //     const bookings = await scheduleUserDataCollection.find(query).toArray();
-        //     timeSlots.forEach(timeSlot => {
-        //         const timeBooks = bookings.filter(b => b.time === timeSlot.time);
-        //         const booked = timeBooks.map(t => t.time);
-        //         const availableTime = timeSlots.filter(t => !booked.time(t))
-        //         // timeSlot.time = availableTime;
-        //         // timeSlot.booked = timeBooks.map(t => t.time)
-        //         console.log(availableTime);
-        //     })
-        //     res.send(timeSlots)
-        // })
-
-
         // get all news
         const newsCollection = client.db('top_gear_perform').collection('news');
         app.get('/news', async (req, res) => {
