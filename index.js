@@ -506,6 +506,20 @@ async function run() {
             const result = await userGoalCollection.insertOne(newGoal);
             res.send(result);
         });
+        app.get('/usergoal', async (req, res) => {
+            const userGoal = await userGoalCollection.find().toArray();
+            res.send(userGoal);
+        });
+        app.put('/usergoal/feedback/:id', async (req, res) => {
+            const id = req.params.id;
+            const feedbackText = req.body;
+            const filter = { _id: ObjectId(id) };
+            const updateDoc = {
+                $set: { feedback: feedbackText.text },
+            };
+            const result = await userGoalCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        });
         app.get('/usergoal/:email', async (req, res) => {
             const email = req.params.email;
             const query = { user: email };
