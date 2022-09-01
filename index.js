@@ -534,7 +534,13 @@ async function run() {
         app.get('/chatuser', async (req, res) => {
             const chats = await chatuserCollection.find().toArray();
             res.send(chats)
-        })
+        });
+        app.delete('/chatuser/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await chatuserCollection.deleteOne(query);
+            res.send(result);
+        });
 
 
         // app.get('/timeAvailable', async (req, res) => {
