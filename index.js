@@ -426,10 +426,11 @@ async function run() {
         });
 
         // ============= Notes api =================
-        app.post('/notes', async (req, res) => {
-            const newNote = req.body;
-            const result = await notesCollection.insertOne(newNote);
-            res.send(result);
+        app.get('/notes/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email }
+            const notes = await notesCollection.find(query).toArray();
+            res.send(notes);
         });
         app.get('/notes', async (req, res) => {
             const notes = await notesCollection.find().toArray();
