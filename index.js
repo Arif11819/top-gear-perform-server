@@ -132,7 +132,7 @@ async function run() {
         app.post('/login', async (req, res) => {
             const user = req.body;
             const accessToken = jwt.sign(user, process.env.JWT_SECRET, {
-                expiresIn: '1d'
+                expiresIn: '27d'
             });
             res.send({ accessToken });
         });
@@ -173,6 +173,19 @@ async function run() {
             const result = await userCollection.deleteOne(query);
             res.send(result);
         });
+
+        // admin
+
+       app.put('/users/admin/:singleUser', async(req, res) =>{
+        const userEmail = req.params.userEmail;
+        const filter = { userEmail : userEmail};
+        const updateDoc = {
+            $set: {role: 'admin'},
+        };
+        const result = await userCollection.updateOne(filter, updateDoc);
+        res.send({result});
+       } );
+
 
         app.get('/task', async (req, res) => {
             const query = {};
@@ -676,13 +689,24 @@ async function run() {
             const emgcontact = await emergencyCollection.find(query).toArray();
             res.send(emgcontact);
         });
+
         // post emgcontact 
+
         app.post('/emgcontact', async (req, res) => {
             const emgcontact = req.body;
             const result = await emergencyCollection.insertOne(emgcontact);
             res.send(result);
-        })
+        });
+
+        app.get('/emgcontact/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { user: email };
+            const result = await emergencyCollection.find(query).toArray();
+            res.send(result);
+        });
+
         //  delete emgcontact
+
         app.delete('/emgcontact/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
