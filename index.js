@@ -541,6 +541,24 @@ async function run() {
             res.send({ admin: isAdmin });
         });
 
+        //verify manager
+        app.get('/manager/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = await userCollection.findOne({ userEmail: email });
+            const isManager = user.role === 'manager';
+            res.send({ manager: isManager });
+        });
+        // make manager
+        app.put('/user/manager/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const updateDoc = {
+                $set: { role: 'manager' },
+            };
+            const result = await userCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        });
+
         app.post('/chatuser', async (req, res) => {
             const newChat = req.body;
             const result = await chatuserCollection.insertOne(newChat);
