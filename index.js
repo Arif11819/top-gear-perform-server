@@ -94,6 +94,7 @@ async function run() {
         const scheduleUserDataCollection = client.db('top_gear_perform').collection('scheduleUserData');
         const timeSlotsCollection = client.db('top_gear_perform').collection('timeSlots');
         const notesCollection = client.db('top_gear_perform').collection('notes');
+        const chatuserCollection = client.db('top_gear_perform').collection('chatuser');
         // coures
         const courseCollection = client.db('top_gear_perform').collection('course');
 
@@ -461,10 +462,11 @@ async function run() {
         });
 
         // ============= Notes api =================
-        app.post('/notes', async (req, res) => {
-            const newNote = req.body;
-            const result = await notesCollection.insertOne(newNote);
-            res.send(result);
+        app.get('/notes/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email }
+            const notes = await notesCollection.find(query).toArray();
+            res.send(notes);
         });
         app.get('/notes', async (req, res) => {
             const notes = await notesCollection.find().toArray();
@@ -511,6 +513,23 @@ async function run() {
             const result = await vacationStoreCollection.insertOne(newVacation);
             res.send(result)
         });
+
+        app.get('/vacationstore', async (req, res) => {
+            const vacationAll = await vacationStoreCollection.find().toArray();
+            res.send(vacationAll);
+        });
+
+        app.put('/vacationstore/feedback/:id', async (req, res) => {
+            const id = req.params.id;
+            const feedbackText = req.body;
+            const filter = { _id: ObjectId(id) };
+            const updateDoc = {
+                $set: { feedback: feedbackText.text },
+            };
+            const result = await vacationStoreCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        });
+
         app.get('/vacationstore/:email', async (req, res) => {
             const email = req.params.email;
             const query = { email: email };
@@ -524,6 +543,20 @@ async function run() {
             const result = await userGoalCollection.insertOne(newGoal);
             res.send(result);
         });
+        app.get('/usergoal', async (req, res) => {
+            const userGoal = await userGoalCollection.find().toArray();
+            res.send(userGoal);
+        });
+        app.put('/usergoal/feedback/:id', async (req, res) => {
+            const id = req.params.id;
+            const feedbackText = req.body;
+            const filter = { _id: ObjectId(id) };
+            const updateDoc = {
+                $set: { feedback: feedbackText.text },
+            };
+            const result = await userGoalCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        });
         app.get('/usergoal/:email', async (req, res) => {
             const email = req.params.email;
             const query = { user: email };
@@ -535,25 +568,48 @@ async function run() {
             const query = { _id: ObjectId(id) };
             const result = await userGoalCollection.deleteOne(query);
             res.send(result);
-        })
+        });
+        // verify admin 
+        app.get('/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = await userCollection.findOne({ userEmail: email });
+            const isAdmin = user.role === 'admin';
+            res.send({ admin: isAdmin });
+        });
 
+        //verify manager
+        app.get('/manager/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = await userCollection.findOne({ userEmail: email });
+            const isManager = user.role === 'manager';
+            res.send({ manager: isManager });
+        });
+        // make manager
+        app.put('/user/manager/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const updateDoc = {
+                $set: { role: 'manager' },
+            };
+            const result = await userCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        });
 
-        // app.get('/timeAvailable', async (req, res) => {
-        //     const date = req.query.date || 'Aug 16, 2022'
-        //     const timeSlots = await timeSlotsCollection.find().toArray();
-        //     const query = { date: date }
-        //     const bookings = await scheduleUserDataCollection.find(query).toArray();
-        //     timeSlots.forEach(timeSlot => {
-        //         const timeBooks = bookings.filter(b => b.time === timeSlot.time);
-        //         const booked = timeBooks.map(t => t.time);
-        //         const availableTime = timeSlots.filter(t => !booked.time(t))
-        //         // timeSlot.time = availableTime;
-        //         // timeSlot.booked = timeBooks.map(t => t.time)
-        //         console.log(availableTime);
-        //     })
-        //     res.send(timeSlots)
-        // })
-
+        app.post('/chatuser', async (req, res) => {
+            const newChat = req.body;
+            const result = await chatuserCollection.insertOne(newChat);
+            res.send(result);
+        });
+        app.get('/chatuser', async (req, res) => {
+            const chats = await chatuserCollection.find().toArray();
+            res.send(chats)
+        });
+        app.delete('/chatuser/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await chatuserCollection.deleteOne(query);
+            res.send(result);
+        });
 
         // get all news
         const newsCollection = client.db('top_gear_perform').collection('news');
