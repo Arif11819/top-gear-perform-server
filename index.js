@@ -1,3 +1,4 @@
+
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
@@ -12,6 +13,7 @@ const port = process.env.PORT || 5000;
 // middleware
 app.use(cors());
 app.use(express.json());
+
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.gflsp.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -92,6 +94,36 @@ async function run() {
         const scheduleUserDataCollection = client.db('top_gear_perform').collection('scheduleUserData');
         const timeSlotsCollection = client.db('top_gear_perform').collection('timeSlots');
         const notesCollection = client.db('top_gear_perform').collection('notes');
+        const chatuserCollection = client.db('top_gear_perform').collection('chatuser');
+        // coures
+        const courseCollection = client.db('top_gear_perform').collection('course');
+
+        // course
+        app.get('/course', async (req, res) => {
+            // res.send('hello i am ready')
+            const query = {};
+            const course = courseCollection.find(query);
+            const item = await course.toArray();
+            res.send(item);
+
+
+        })
+
+        // course post 
+        app.post('/course', async (req, res) => {
+            const course = req.body;
+            const result = await courseCollection.insertOne(course);
+            res.send(result);
+        })
+
+        // course delete
+        app.delete('/course/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await courseCollection.deleteOne(query);
+            res.send(result);
+
+        })
         const vacationCollection = client.db('top_gear_perform').collection('vacation');
         const vacationStoreCollection = client.db('top_gear_perform').collection('vacationStore');
         const userGoalCollection = client.db('top_gear_perform').collection('userGoal');
@@ -112,9 +144,6 @@ async function run() {
             res.send(user)
         })
 
-
-
-
         app.post('/users', async (req, res) => {
             const userData = req.body
             const result = await userCollection.insertOne(userData)
@@ -127,6 +156,16 @@ async function run() {
             const users = await cursor.toArray();
             res.send(users)
         });
+        app.put('/user/admin/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const updateDoc = {
+                $set: { role: 'admin' },
+            };
+            const result = await userCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        });
+
 
         app.delete('/users/:id', async (req, res) => {
             const id = req.params.id;
@@ -159,6 +198,12 @@ async function run() {
             const result = await taskCollection.insertOne(task);
             res.send(result);
         });
+        app.get('/task/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { user: email };
+            const result = await taskCollection.find(query).toArray();
+            res.send(result);
+        })
         app.get('/task/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
@@ -183,6 +228,12 @@ async function run() {
             const result = await progressCollection.insertOne(task);
             res.send(result);
         });
+        app.get('/progress/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { user: email };
+            const result = await progressCollection.find(query).toArray();
+            res.send(result);
+        })
         app.get('/progress/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
@@ -207,12 +258,19 @@ async function run() {
             const result = await completeCollection.insertOne(complete);
             res.send(result);
         });
+        app.get('/complete/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { user: email };
+            const result = await completeCollection.find(query).toArray();
+            res.send(result);
+        })
         app.get('/complete/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const complete = await completeCollection.findOne(query);
             res.send(complete);
         });
+
 
         app.delete('/complete/:id', async (req, res) => {
             const id = req.params.id;
@@ -233,12 +291,20 @@ async function run() {
             const result = await schemeCollection.insertOne(schedule);
             res.send(result);
         });
+        app.get('/schedule/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { user: email };
+            const result = await schemeCollection.find(query).toArray();
+            res.send(result);
+        })
         app.get('/schedule/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const schedule = await schemeCollection.findOne(query);
             res.send(schedule);
         });
+
+
         app.delete('/schedule/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
@@ -252,17 +318,24 @@ async function run() {
             const employees = await cursor.toArray();
             res.send(employees);
         });
-        app.get('/employee/:id', async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: ObjectId(id) };
-            const employees = await employeeCollection.findOne(query);
-            res.send(employees);
-        });
+        // app.get('/employee/:id', async (req, res) => {
+        //     const id = req.params.id;
+        //     const query = { _id: ObjectId(id) };
+        //     const employees = await employeeCollection.findOne(query);
+        //     res.send(employees);
+        // });
+        app.get('/employee/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { user: email };
+            const result = await employeeCollection.find(query).toArray();
+            res.send(result);
+        })
         app.post('/employee', async (req, res) => {
             const employees = req.body;
             const result = await employeeCollection.insertOne(employees);
             res.send(result);
         });
+
         app.post('/employee', async (req, res) => {
             const employees = req.body;
             const result = await employeeCollection.insertOne(employees);
@@ -302,12 +375,13 @@ async function run() {
         });
 
         const ebookCollection = client.db('TopGear-ebooks').collection('E-books');
+        const newEbookCollection = client.db('TopGear-ebooks').collection('Newbook');
 
         app.get('/ebook', async (req, res) => {
             const query = {};
             const cursor = ebookCollection.find(query);
-            const blog = await cursor.toArray();
-            res.send(blog)
+            const ebook = await cursor.toArray();
+            res.send(ebook)
         });
         app.post('/ebook', async (req, res) => {
             const schedule = req.body;
@@ -325,6 +399,12 @@ async function run() {
             const query = { _id: ObjectId(id) };
             const result = await ebookCollection.deleteOne(query);
             res.send(result);
+        });
+        app.get('/new-ebook', async (req, res) => {
+            const query = {};
+            const cursor = newEbookCollection.find(query);
+            const newBook = await cursor.toArray();
+            res.send(newBook)
         });
 
         console.log('Database connected');
@@ -345,6 +425,26 @@ async function run() {
                 res.send(reviews);
             });
 
+        });
+
+        app.post('/reviews', async (req, res) => {
+            const reviews = req.body;
+            const result = await reviewsCollection.insertOne(reviews);
+            res.send(result);
+
+        });
+
+        app.delete('/reviews/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await reviewsCollection.deleteOne(query);
+            res.send(result);
+        });
+
+        app.post('/employee', async (req, res) => {
+            const employees = req.body;
+            const result = await employeeCollection.insertOne(employees);
+            res.send(result);
         });
         const countryCollection = client.db('All-Country').collection('Countries');
 
@@ -388,15 +488,17 @@ async function run() {
         });
 
         // ============= Notes api =================
-        app.post('/notes', async (req, res) => {
-            const newNote = req.body;
-            const result = await notesCollection.insertOne(newNote);
-            res.send(result);
+        app.get('/notes/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email }
+            const notes = await notesCollection.find(query).toArray();
+            res.send(notes);
         });
         app.get('/notes', async (req, res) => {
             const notes = await notesCollection.find().toArray();
             res.send(notes);
         });
+
 
         // ========= vacation api ====================
         app.get('/vacation/:email', async (req, res) => {
@@ -438,6 +540,23 @@ async function run() {
             const result = await vacationStoreCollection.insertOne(newVacation);
             res.send(result)
         });
+
+        app.get('/vacationstore', async (req, res) => {
+            const vacationAll = await vacationStoreCollection.find().toArray();
+            res.send(vacationAll);
+        });
+
+        app.put('/vacationstore/feedback/:id', async (req, res) => {
+            const id = req.params.id;
+            const feedbackText = req.body;
+            const filter = { _id: ObjectId(id) };
+            const updateDoc = {
+                $set: { feedback: feedbackText.text },
+            };
+            const result = await vacationStoreCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        });
+
         app.get('/vacationstore/:email', async (req, res) => {
             const email = req.params.email;
             const query = { email: email };
@@ -451,6 +570,20 @@ async function run() {
             const result = await userGoalCollection.insertOne(newGoal);
             res.send(result);
         });
+        app.get('/usergoal', async (req, res) => {
+            const userGoal = await userGoalCollection.find().toArray();
+            res.send(userGoal);
+        });
+        app.put('/usergoal/feedback/:id', async (req, res) => {
+            const id = req.params.id;
+            const feedbackText = req.body;
+            const filter = { _id: ObjectId(id) };
+            const updateDoc = {
+                $set: { feedback: feedbackText.text },
+            };
+            const result = await userGoalCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        });
         app.get('/usergoal/:email', async (req, res) => {
             const email = req.params.email;
             const query = { user: email };
@@ -462,25 +595,48 @@ async function run() {
             const query = { _id: ObjectId(id) };
             const result = await userGoalCollection.deleteOne(query);
             res.send(result);
-        })
+        });
+        // verify admin 
+        app.get('/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = await userCollection.findOne({ userEmail: email });
+            const isAdmin = user.role === 'admin';
+            res.send({ admin: isAdmin });
+        });
 
+        //verify manager
+        app.get('/manager/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = await userCollection.findOne({ userEmail: email });
+            const isManager = user.role === 'manager';
+            res.send({ manager: isManager });
+        });
+        // make manager
+        app.put('/user/manager/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const updateDoc = {
+                $set: { role: 'manager' },
+            };
+            const result = await userCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        });
 
-        // app.get('/timeAvailable', async (req, res) => {
-        //     const date = req.query.date || 'Aug 16, 2022'
-        //     const timeSlots = await timeSlotsCollection.find().toArray();
-        //     const query = { date: date }
-        //     const bookings = await scheduleUserDataCollection.find(query).toArray();
-        //     timeSlots.forEach(timeSlot => {
-        //         const timeBooks = bookings.filter(b => b.time === timeSlot.time);
-        //         const booked = timeBooks.map(t => t.time);
-        //         const availableTime = timeSlots.filter(t => !booked.time(t))
-        //         // timeSlot.time = availableTime;
-        //         // timeSlot.booked = timeBooks.map(t => t.time)
-        //         console.log(availableTime);
-        //     })
-        //     res.send(timeSlots)
-        // })
-
+        app.post('/chatuser', async (req, res) => {
+            const newChat = req.body;
+            const result = await chatuserCollection.insertOne(newChat);
+            res.send(result);
+        });
+        app.get('/chatuser', async (req, res) => {
+            const chats = await chatuserCollection.find().toArray();
+            res.send(chats)
+        });
+        app.delete('/chatuser/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await chatuserCollection.deleteOne(query);
+            res.send(result);
+        });
 
         // get all news
         const newsCollection = client.db('top_gear_perform').collection('news');
@@ -494,12 +650,41 @@ async function run() {
             const news = req.body
             const result = await newsCollection.insertOne(news)
             res.send(result)
+        });
+
+
+
+        // course
+        app.get('/course', async (req, res) => {
+            // res.send('hello i am ready')
+            const query = {};
+            const course = courseCollection.find(query);
+            const item = await course.toArray();
+            res.send(item);
+
+
+        })
+
+        // course post 
+        app.post('/course', async (req, res) => {
+            const course = req.body;
+            const result = await courseCollection.insertOne(course);
+            res.send(result);
+        })
+
+        // course delete
+        app.delete('/course/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await courseCollection.deleteOne(query);
+            res.send(result);
+
         })
 
         // Sumaya's code
 
         const emergencyCollection = client.db('emergency-contact').collection('emgcontact');
-        app.get('/emgcontact', async ( req, res) => {
+        app.get('/emgcontact', async (req, res) => {
             const query = {};
             const emgcontact = await emergencyCollection.find(query).toArray();
             res.send(emgcontact);
@@ -529,6 +714,13 @@ async function run() {
             res.send(result);
         });
 
+        app.get('/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = await userCollection.findOne({ userEmail: email });
+            const isAdmin = user.role === 'admin';
+            res.send({ admin: isAdmin });
+        });
+
 
 
     }
@@ -545,3 +737,4 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
     console.log(`TopGear Perform app listening on port ${port}`);
 })
+
