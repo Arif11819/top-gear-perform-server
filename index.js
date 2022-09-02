@@ -305,12 +305,18 @@ async function run() {
             const employees = await cursor.toArray();
             res.send(employees);
         });
-        app.get('/employee/:id', async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: ObjectId(id) };
-            const employees = await employeeCollection.findOne(query);
-            res.send(employees);
-        });
+        // app.get('/employee/:id', async (req, res) => {
+        //     const id = req.params.id;
+        //     const query = { _id: ObjectId(id) };
+        //     const employees = await employeeCollection.findOne(query);
+        //     res.send(employees);
+        // });
+        app.get('/employee/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { user: email };
+            const result = await employeeCollection.find(query).toArray();
+            res.send(result);
+        })
         app.post('/employee', async (req, res) => {
             const employees = req.body;
             const result = await employeeCollection.insertOne(employees);
@@ -356,12 +362,13 @@ async function run() {
         });
 
         const ebookCollection = client.db('TopGear-ebooks').collection('E-books');
+        const newEbookCollection = client.db('TopGear-ebooks').collection('Newbook');
 
         app.get('/ebook', async (req, res) => {
             const query = {};
             const cursor = ebookCollection.find(query);
-            const blog = await cursor.toArray();
-            res.send(blog)
+            const ebook = await cursor.toArray();
+            res.send(ebook)
         });
         app.post('/ebook', async (req, res) => {
             const schedule = req.body;
@@ -379,6 +386,12 @@ async function run() {
             const query = { _id: ObjectId(id) };
             const result = await ebookCollection.deleteOne(query);
             res.send(result);
+        });
+        app.get('/new-ebook', async (req, res) => {
+            const query = {};
+            const cursor = newEbookCollection.find(query);
+            const newBook = await cursor.toArray();
+            res.send(newBook)
         });
 
         console.log('Database connected');
@@ -472,6 +485,7 @@ async function run() {
             const notes = await notesCollection.find().toArray();
             res.send(notes);
         });
+
 
         // ========= vacation api ====================
         app.get('/vacation/:email', async (req, res) => {
