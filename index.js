@@ -176,15 +176,15 @@ async function run() {
 
         // admin
 
-       app.put('/users/admin/:singleUser', async(req, res) =>{
-        const userEmail = req.params.userEmail;
-        const filter = { userEmail : userEmail};
-        const updateDoc = {
-            $set: {role: 'admin'},
-        };
-        const result = await userCollection.updateOne(filter, updateDoc);
-        res.send({result});
-       } );
+        app.put('/users/admin/:singleUser', async (req, res) => {
+            const userEmail = req.params.userEmail;
+            const filter = { userEmail: userEmail };
+            const updateDoc = {
+                $set: { role: 'admin' },
+            };
+            const result = await userCollection.updateOne(filter, updateDoc);
+            res.send({ result });
+        });
 
 
         app.get('/task', async (req, res) => {
@@ -494,11 +494,11 @@ async function run() {
             const notes = await notesCollection.find(query).toArray();
             res.send(notes);
         });
-        app.get('/notes', async (req, res) => {
-            const notes = await notesCollection.find().toArray();
-            res.send(notes);
+        app.post('/notes', async (req, res) => {
+            const newNote = req.body;
+            const result = await notesCollection.insertOne(newNote);
+            res.send(result);
         });
-
 
         // ========= vacation api ====================
         app.get('/vacation/:email', async (req, res) => {
